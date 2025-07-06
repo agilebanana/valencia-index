@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Valencia Lifestyle Quiz – Family Edition</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; background: #f9f9f9; }
+    h2 { color: #3a3a3a; }
+    .question { margin: 20px 0; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    label { display: block; margin: 8px 0; }
+    button { padding: 10px 20px; margin-top: 20px; font-size: 16px; background-color: #0077cc; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background-color: #005fa3; }
+    #results { margin-top: 40px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+    .bar { height: 18px; background: #0077cc; margin: 4px 0; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h2>Find Your Perfect Valencia Neighborhood</h2>
+  <form id="quizForm">
+    <div class="question">
+      <strong>1. How important is it for your kids to have access to parks and green spaces?</strong>
+      <label><input type="radio" name="parks" value="Extremely important"> Extremely important</label>
+      <label><input type="radio" name="parks" value="Somewhat important"> Somewhat important</label>
+      <label><input type="radio" name="parks" value="Not important"> Not important</label>
+    </div>
+
+    <div class="question">
+      <strong>2. Do you want to be near museums, libraries, or cultural activities for kids?</strong>
+      <label><input type="radio" name="culture" value="Yes, very important"> Yes, very important</label>
+      <label><input type="radio" name="culture" value="Nice to have"> Nice to have</label>
+      <label><input type="radio" name="culture" value="No preference"> No preference</label>
+    </div>
+
+    <div class="question">
+      <strong>3. Would you like to be close to nature trails or outdoor family activities?</strong>
+      <label><input type="radio" name="trails" value="Yes, walking distance"> Yes, walking distance</label>
+      <label><input type="radio" name="trails" value="Short drive is fine"> Short drive is fine</label>
+      <label><input type="radio" name="trails" value="Not really"> Not really</label>
+    </div>
+
+    <div class="question">
+      <strong>4. How important are public swimming pools or splash parks for your family?</strong>
+      <label><input type="radio" name="pools" value="We’d use them all summer"> We’d use them all summer</label>
+      <label><input type="radio" name="pools" value="Nice to have"> Nice to have</label>
+      <label><input type="radio" name="pools" value="Not necessary"> Not necessary</label>
+    </div>
+
+    <div class="question">
+      <strong>5. Do you prefer quieter neighborhoods with other families nearby?</strong>
+      <label><input type="radio" name="quiet" value="Yes, peaceful and family-oriented"> Yes, peaceful and family-oriented</label>
+      <label><input type="radio" name="quiet" value="Mixed is fine"> Mixed is fine</label>
+      <label><input type="radio" name="quiet" value="We like action"> We like action</label>
+    </div>
+
+    <button type="submit">See My Top Neighborhoods</button>
+  </form>
+
+  <div id="results" style="display:none;">
+    <h2>🏡 Your Top 5 Neighborhood Matches</h2>
+    <div id="neighborhoodResults"></div>
+  </div>
+
+  <script>
+    const tagMapping = {
+      parks: {
+        "Extremely important": ["nearNature", "greenAccess", "nearLargePark"],
+        "Somewhat important": ["greenAccess"],
+        "Not important": []
+      },
+      culture: {
+        "Yes, very important": ["culturalAccess", "urban", "goodTransit"],
+        "Nice to have": ["culturalAccess"],
+        "No preference": []
+      },
+      trails: {
+        "Yes, walking distance": ["nearNature", "treeLinedStreets"],
+        "Short drive is fine": ["commuterSuburb", "greenAccess"],
+        "Not really": []
+      },
+      pools: {
+        "We’d use them all summer": ["publicPools", "family-friendly", "urban"],
+        "Nice to have": ["publicPools"],
+        "Not necessary": []
+      },
+      quiet: {
+        "Yes, peaceful and family-oriented": ["family-friendly", "quietStreets", "isPueblo"],
+        "Mixed is fine": [],
+        "We like action": []
+      }
+    };
+
+    const neighborhoods = [
+      // Example entries (to be dynamically loaded or replaced with real data)
+      { name: "Rocafort", tags: ["family-friendly", "quietStreets", "isPueblo", "nearNature", "greenAccess", "publicPools"] },
+      { name: "Ensanche", tags: ["urban", "culturalAccess", "goodTransit", "publicPools"] },
+      { name: "Godella", tags: ["isPueblo", "family-friendly", "greenAccess", "quietStreets", "publicPools"] },
+      { name: "Campanar", tags: ["greenAccess", "urban", "publicPools", "family-friendly"] },
+      { name: "El Cabanyal", tags: ["nearBeach", "urban", "goodTransit", "culturalAccess"] },
+      { name: "Torrent", tags: ["commuterSuburb", "family-friendly", "publicPools", "isPueblo", "quietStreets"] }
+    ];
+
+    document.getElementById("quizForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const form = event.target;
+      let selectedTags = [];
+
+      for (const [question, options] of Object.entries(tagMapping)) {
+        const answer = form[question].value;
+        if (options[answer]) {
+          selectedTags = selectedTags.concat(options[answer]);
+        }
+      }
+
+      const scores = neighborhoods.map(n => {
+        const matches = n.tags.filter(t => selectedTags.includes(t)).length;
+        return { name: n.name, score: matches };
+      }).sort((a, b) => b.score - a.score).slice(0, 5);
+
+      // Display dashboard
+      const resultDiv = document.getElementById("neighborhoodResults");
+      resultDiv.innerHTML = "";
+      const maxScore = scores[0]?.score || 1;
+
+      scores.forEach(n => {
+        const pct = ((n.score / maxScore) * 100).toFixed(1);
+        resultDiv.innerHTML += `
+          <p><strong>${n.name}</strong> (${pct}%)</p>
+          <div class="bar" style="width:${pct}%"></div>
+        `;
+      });
+
+      document.getElementById("results").style.display = "block";
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    });
+  </script>
+</body>
+</html>

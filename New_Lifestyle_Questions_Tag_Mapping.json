@@ -1,0 +1,80 @@
+[
+  {
+    "question": "How important is it to live near caf\u00e9s or bakeries for your daily routine?",
+    "options": {
+      "Essential \u2014 daily coffee and croissants are my ritual": [
+        "cafeCulture",
+        "bakeriesNearby",
+        "walkable",
+        "morningVibe"
+      ],
+      "Nice to have, but not essential": [
+        "walkable",
+        "cafeCulture"
+      ],
+      "Not important \u2014 I usually make breakfast at home": []
+    }
+  },
+  {
+    "question": "Do you enjoy living near vibrant bars or plazas with evening energy?",
+    "options": {
+      "Yes \u2014 I love being where the action is at night": [
+        "barScene",
+        "lively",
+        "urban",
+        "youngCrowd"
+      ],
+      "Sometimes \u2014 I like access without the noise": [
+        "urban",
+        "goodTransit"
+      ],
+      "No \u2014 I prefer peaceful nights and quiet streets": [
+        "quietStreets",
+        "family-friendly"
+      ]
+    }
+  },
+  {
+    "question": "Are you hoping to live near great restaurants or fresh food markets?",
+    "options": {
+      "Yes \u2014 foodie access is a must": [
+        "foodie",
+        "nearMarkets",
+        "walkable"
+      ],
+      "I\u2019d like that, but it\u2019s not a dealbreaker": [
+        "nearMarkets"
+      ],
+      "Not really \u2014 I mostly cook at home": []
+    }
+  },
+  {
+    "question": "Do you plan to walk to local markets or drive to a larger supermarket?",
+    "options": {
+      "Walk to small shops and mercados": [
+        "walkable",
+        "nearMarkets"
+      ],
+      "Drive or take public transport to a supermarket": [
+        "carDependent",
+        "goodTransit"
+      ]
+    }
+  },
+  {
+    "question": "How often do you see yourself walking to grab coffee, bread, or groceries?",
+    "options": {
+      "Daily \u2014 it\u2019s part of my lifestyle": [
+        "bakeriesNearby",
+        "walkable",
+        "morningVibe"
+      ],
+      "Once or twice a week": [
+        "walkable"
+      ],
+      "Rarely \u2014 I shop in bulk": [
+        "carDependent"
+      ]
+    }
+  }
+]
