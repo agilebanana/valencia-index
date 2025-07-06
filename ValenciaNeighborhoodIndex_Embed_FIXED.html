@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Valencia Neighborhood Index</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h2>Valencia Neighborhood Livability Index 2025</h2>
+    <p>Search, filter, and sort to explore Valencia’s neighborhoods.</p>
+    <table id="valenciaTable" class="display" style="width:100%"></table>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            Papa.parse("https://docs.google.com/spreadsheets/d/e/2PACX-1vSNhgMLHNMBnsO9akt8T7YrW31p7vHmRnM5z1Vlan-wEPE7xVsa_--I49E5GQK2VKLPENOWMbdQqxwx/pub?output=csv", {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    const data = results.data;
+                    const columns = Object.keys(data[0]).map(function(key) {
+                        return { title: key, data: key };
+                    });
+                    $('#valenciaTable').DataTable({
+                        data: data,
+                        columns: columns,
+                        pageLength: 25,
+                        responsive: true
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
