@@ -1,0 +1,210 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Valencia Lifestyle Quiz – Expat Family Edition</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; background: #f4f4f4; }
+    h2 { color: #333; }
+    .question { margin: 20px 0; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    label { display: block; margin: 8px 0; }
+    button { padding: 10px 20px; margin-top: 20px; font-size: 16px; background-color: #0077cc; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background-color: #005fa3; }
+    #results { margin-top: 40px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+    .bar { height: 18px; background: #0077cc; margin: 4px 0; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h2>Find Your Perfect Valencia Neighborhood</h2>
+  <form id="quizForm">
+    <!-- Questions will be injected here by JavaScript -->
+  </form>
+
+  <div id="results" style="display:none;">
+    <h2>🏡 Your Top 5 Neighborhood Matches</h2>
+    <div id="neighborhoodResults"></div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        name: "parks",
+        text: "How important is it for your kids to have access to parks and green spaces?",
+        options: [
+          { label: "Extremely important", tags: ["greenAccess", "nearLargePark", "urbanFamily", "treeLinedStreets"] },
+          { label: "Somewhat important", tags: ["greenAccess"] },
+          { label: "Not important", tags: [] }
+        ]
+      },
+      {
+        name: "culture",
+        text: "Do you want to be near museums, libraries, or cultural activities for kids?",
+        options: [
+          { label: "Yes, very important", tags: ["culturalAccess", "urban", "goodTransit"] },
+          { label: "Nice to have", tags: ["culturalAccess"] },
+          { label: "No preference", tags: [] }
+        ]
+      },
+      {
+        name: "trails",
+        text: "Would you like to be close to nature trails or outdoor family activities?",
+        options: [
+          { label: "Yes, walking distance", tags: ["nearNature", "treeLinedStreets", "suburbanFamily"] },
+          { label: "Short drive is fine", tags: ["commuterSuburb", "greenAccess"] },
+          { label: "Not really", tags: [] }
+        ]
+      },
+      {
+        name: "pools",
+        text: "How important are public swimming pools or splash parks for your family?",
+        options: [
+          { label: "We’d use them all summer", tags: ["publicPools", "urbanFamily", "family-friendly"] },
+          { label: "Nice to have", tags: ["publicPools"] },
+          { label: "Not necessary", tags: [] }
+        ]
+      },
+      {
+        name: "quiet",
+        text: "Do you prefer quieter neighborhoods with other families nearby?",
+        options: [
+          { label: "Yes, peaceful and family-oriented", tags: ["suburbanFamily", "quietStreets", "isPueblo"] },
+          { label: "Mixed is fine", tags: [] },
+          { label: "We like action", tags: ["urban"] }
+        ]
+      },
+      {
+        name: "beach",
+        text: "How close do you want to be to the beach?",
+        options: [
+          { label: "Walking distance", tags: ["nearBeach", "urban"] },
+          { label: "Short metro or bus ride is fine", tags: ["goodTransit", "urban"] },
+          { label: "I don’t need to be near the beach", tags: [] }
+        ]
+      },
+      {
+        name: "vibe",
+        text: "What kind of neighborhood vibe feels most like 'home' to you?",
+        options: [
+          { label: "Quiet, peaceful, family-oriented", tags: ["quietStreets", "suburbanFamily"] },
+          { label: "Creative, diverse, international", tags: ["urban", "culturalAccess", "expatFriendly"] },
+          { label: "Trendy, busy, social", tags: ["urban", "goodTransit"] }
+        ]
+      },
+      {
+        name: "home",
+        text: "What kind of home are you hoping to live in?",
+        options: [
+          { label: "An apartment in the city", tags: ["urbanFamily", "apartmentLiving"] },
+          { label: "A house with outdoor space (like a yard or garden)", tags: ["yard", "suburbanFamily"] },
+          { label: "Open to either", tags: [] }
+        ]
+      },
+      {
+        name: "location",
+        text: "Would you prefer a quiet neighborhood outside the city center — with more space and parking — or to be in the heart of Valencia’s walkable historic core?",
+        options: [
+          { label: "I prefer peaceful suburbs with more space", tags: ["isPueblo", "suburbanFamily", "commuterSuburb"] },
+          { label: "I want to live right in the walkable city center", tags: ["urbanFamily", "goodTransit"] },
+          { label: "I’m open to both", tags: [] }
+        ]
+      },
+      {
+        name: "walkability",
+        text: "How important is it for you to be able to walk to shops, parks, or cafes?",
+        options: [
+          { label: "Very important – I want everything nearby", tags: ["walkable", "urbanFamily"] },
+          { label: "Nice to have", tags: ["walkable"] },
+          { label: "Not important – I plan to drive or use transit", tags: ["commuterSuburb"] }
+        ]
+      },
+      {
+        name: "school",
+        text: "Will kids be attending school here?",
+        options: [
+          { label: "Yes – international or bilingual school", tags: ["expatFriendly", "urbanFamily"] },
+          { label: "Yes – local public or concertado school", tags: ["suburbanFamily", "isPueblo"] },
+          { label: "No – not applicable", tags: [] }
+        ]
+      },
+      {
+        name: "pets",
+        text: "Will pets be part of your household in Valencia?",
+        options: [
+          { label: "Yes – a dog, cat, or both", tags: ["petFriendly", "yard"] },
+          { label: "Maybe – I’m considering it", tags: ["petFriendly"] },
+          { label: "No", tags: [] }
+        ]
+      }
+    ];
+
+    const neighborhoods = [
+      // Neighborhoods and tags will be loaded here from a future datafile
+      { name: "Rocafort", tags: ["quietStreets", "isPueblo", "yard", "petFriendly", "suburbanFamily", "greenAccess"] },
+      { name: "Ensanche", tags: ["urban", "culturalAccess", "walkable", "urbanFamily", "expatFriendly", "goodTransit"] },
+      { name: "El Cabanyal", tags: ["nearBeach", "urban", "walkable", "goodTransit", "expatFriendly"] },
+      { name: "Godella", tags: ["isPueblo", "suburbanFamily", "quietStreets", "yard", "greenAccess", "commuterSuburb"] },
+      { name: "Campanar", tags: ["urbanFamily", "walkable", "greenAccess", "publicPools"] },
+      { name: "Torrent", tags: ["suburbanFamily", "isPueblo", "commuterSuburb", "quietStreets"] }
+    ];
+
+    function renderQuestions() {
+      const form = document.getElementById("quizForm");
+      form.innerHTML = "";
+
+      questions.forEach((q, i) => {
+        const div = document.createElement("div");
+        div.className = "question";
+        div.innerHTML = `<strong>${i + 1}. ${q.text}</strong>`;
+        q.options.forEach(opt => {
+          div.innerHTML += `
+            <label><input type="radio" name="${q.name}" value="${opt.label}"> ${opt.label}</label>
+          `;
+        });
+        form.appendChild(div);
+      });
+
+      form.innerHTML += `<button type="submit">See My Top Neighborhoods</button>`;
+    }
+
+    function handleSubmit(event) {
+      event.preventDefault();
+      const form = event.target;
+      let selectedTags = [];
+
+      questions.forEach(q => {
+        const selected = form[q.name]?.value;
+        const match = q.options.find(opt => opt.label === selected);
+        if (match && match.tags) {
+          selectedTags = selectedTags.concat(match.tags);
+        }
+      });
+
+      const scores = neighborhoods.map(n => {
+        const matches = n.tags.filter(t => selectedTags.includes(t)).length;
+        return { name: n.name, score: matches };
+      }).sort((a, b) => b.score - a.score).slice(0, 5);
+
+      const maxScore = scores[0]?.score || 1;
+      const resultsDiv = document.getElementById("neighborhoodResults");
+      resultsDiv.innerHTML = "";
+
+      scores.forEach(n => {
+        const pct = ((n.score / maxScore) * 100).toFixed(1);
+        resultsDiv.innerHTML += `
+          <p><strong>${n.name}</strong> (${pct}%)</p>
+          <div class="bar" style="width:${pct}%"></div>
+        `;
+      });
+
+      document.getElementById("results").style.display = "block";
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      renderQuestions();
+      document.getElementById("quizForm").addEventListener("submit", handleSubmit);
+    });
+  </script>
+</body>
+</html>
