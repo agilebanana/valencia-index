@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Valencia Lifestyle Quiz – Family Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; background: #f4f4f4; }
+    h2 { color: #333; }
+    .question { margin: 20px 0; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    label { display: block; margin: 8px 0; }
+    button { padding: 10px 20px; margin-top: 20px; font-size: 16px; background-color: #0077cc; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background-color: #005fa3; }
+    #results { margin-top: 40px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+    .bar { height: 18px; background: #0077cc; margin: 4px 0; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h2>Find Your Perfect Valencia Neighborhood</h2>
+  <form id="quizForm"></form>
+
+  <div id="results" style="display:none;">
+    <h2>🏡 Your Top 5 Neighborhood Matches</h2>
+    <div id="neighborhoodResults"></div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        name: "parks",
+        label: "How important is it for your kids to have access to parks and green spaces?",
+        options: ["Extremely important", "Somewhat important", "Not important"]
+      },
+      {
+        name: "culture",
+        label: "Do you want to be near museums, libraries, or cultural activities for kids?",
+        options: ["Yes, very important", "Nice to have", "No preference"]
+      },
+      {
+        name: "trails",
+        label: "Would you like to be close to nature trails or outdoor family activities?",
+        options: ["Yes, walking distance", "Short drive is fine", "Not really"]
+      },
+      {
+        name: "pools",
+        label: "How important are public swimming pools or splash parks for your family?",
+        options: ["We’d use them all summer", "Nice to have", "Not necessary"]
+      },
+      {
+        name: "quiet",
+        label: "Do you prefer quieter neighborhoods with other families nearby?",
+        options: ["Yes, peaceful and family-oriented", "Mixed is fine", "We like action"]
+      },
+      {
+        name: "walkability",
+        label: "How walkable do you want your neighborhood to be?",
+        options: ["We want to walk to everything", "Some shops/cafes nearby", "Not important"]
+      },
+      {
+        name: "schools",
+        label: "Do you need to be near international or bilingual schools?",
+        options: ["Yes, very important", "Nice to have", "Not needed"]
+      },
+      {
+        name: "pets",
+        label: "Will pets be part of your household in Valencia?",
+        options: ["Yes — dog or cat", "Maybe", "No"]
+      },
+      {
+        name: "homeType",
+        label: "What kind of home are you hoping to live in?",
+        options: ["Apartment or flat", "House with outdoor space", "Either is fine"]
+      },
+      {
+        name: "setting",
+        label: "Would you prefer city-center or a suburb with more space?",
+        options: ["Peaceful suburb", "Mixed/close to city", "Historic city center"]
+      },
+      {
+        name: "beach",
+        label: "How close do you want to be to the beach?",
+        options: ["Walking distance", "Short transit ride", "Not important"]
+      },
+      {
+        name: "car",
+        label: "Will you rely on a car for most things?",
+        options: ["Yes, we plan to drive", "Somewhat", "We prefer car-free"]
+      }
+    ];
+
+    const tagMap = {
+      parks: {
+        "Extremely important": ["greenAccess", "nearLargePark", "family-friendly"],
+        "Somewhat important": ["greenAccess"],
+        "Not important": []
+      },
+      culture: {
+        "Yes, very important": ["culturalAccess", "urban"],
+        "Nice to have": ["culturalAccess"],
+        "No preference": []
+      },
+      trails: {
+        "Yes, walking distance": ["nearNature", "treeLinedStreets"],
+        "Short drive is fine": ["greenAccess", "commuterSuburb"],
+        "Not really": []
+      },
+      pools: {
+        "We’d use them all summer": ["publicPools", "family-friendly"],
+        "Nice to have": ["publicPools"],
+        "Not necessary": []
+      },
+      quiet: {
+        "Yes, peaceful and family-oriented": ["quietStreets", "family-friendly"],
+        "Mixed is fine": [],
+        "We like action": ["urban", "culturalAccess"]
+      },
+      walkability: {
+        "We want to walk to everything": ["walkable", "urban"],
+        "Some shops/cafes nearby": ["walkable"],
+        "Not important": ["commuterSuburb"]
+      },
+      schools: {
+        "Yes, very important": ["intlSchools", "expatVibe"],
+        "Nice to have": ["intlSchools"],
+        "Not needed": []
+      },
+      pets: {
+        "Yes — dog or cat": ["petFriendly", "greenAccess"],
+        "Maybe": ["petFriendly"],
+        "No": []
+      },
+      homeType: {
+        "Apartment or flat": ["urban"],
+        "House with outdoor space": ["yard", "isPueblo", "commuterSuburb"],
+        "Either is fine": []
+      },
+      setting: {
+        "Peaceful suburb": ["isPueblo", "commuterSuburb", "quietStreets"],
+        "Mixed/close to city": ["walkable"],
+        "Historic city center": ["urban"]
+      },
+      beach: {
+        "Walking distance": ["nearBeach", "urban"],
+        "Short transit ride": ["goodTransit", "urban"],
+        "Not important": []
+      },
+      car: {
+        "Yes, we plan to drive": ["commuterSuburb", "parking"],
+        "Somewhat": ["parking"],
+        "We prefer car-free": ["walkable"]
+      }
+    };
+
+    const neighborhoods = [
+      { name: "Rocafort", tags: ["family-friendly", "quietStreets", "isPueblo", "yard", "greenAccess", "intlSchools", "commuterSuburb"] },
+      { name: "Godella", tags: ["isPueblo", "family-friendly", "quietStreets", "greenAccess", "intlSchools", "yard"] },
+      { name: "Torrent", tags: ["commuterSuburb", "isPueblo", "family-friendly", "quietStreets", "intlSchools", "parking"] },
+      { name: "Campanar", tags: ["urban", "publicPools", "walkable", "greenAccess", "family-friendly"] },
+      { name: "Benicalap", tags: ["urban", "publicPools", "walkable", "intlSchools", "greenAccess"] },
+      { name: "Ensanche", tags: ["urban", "culturalAccess", "walkable", "expatVibe"] },
+      { name: "El Cabanyal", tags: ["urban", "nearBeach", "goodTransit", "walkable"] },
+      { name: "Patraix", tags: ["urban", "quietStreets", "greenAccess"] }
+    ];
+
+    // Render form
+    const form = document.getElementById("quizForm");
+    questions.forEach((q, i) => {
+      const div = document.createElement("div");
+      div.className = "question";
+      div.innerHTML = "<strong>" + (i + 1) + ". " + q.label + "</strong>";
+      q.options.forEach(opt => {
+        const id = q.name + "_" + opt.replace(/\s+/g, "_");
+        div.innerHTML += `<label><input type="radio" name="${q.name}" value="${opt}" required> ${opt}</label>`;
+      });
+      form.appendChild(div);
+    });
+    form.innerHTML += '<button type="submit">See My Top Neighborhoods</button>';
+
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+      let selectedTags = [];
+
+      questions.forEach(q => {
+        const val = form[q.name].value;
+        const tags = tagMap[q.name][val] || [];
+        selectedTags = selectedTags.concat(tags);
+      });
+
+      const results = neighborhoods.map(n => {
+        const matchCount = n.tags.filter(t => selectedTags.includes(t)).length;
+        return { name: n.name, score: matchCount };
+      }).sort((a, b) => b.score - a.score).slice(0, 5);
+
+      const maxScore = results[0]?.score || 1;
+      const resultDiv = document.getElementById("neighborhoodResults");
+      resultDiv.innerHTML = "";
+      results.forEach(n => {
+        const pct = ((n.score / maxScore) * 100).toFixed(1);
+        resultDiv.innerHTML += `<p><strong>${n.name}</strong> (${pct}%)</p><div class="bar" style="width:${pct}%"></div>`;
+      });
+
+      document.getElementById("results").style.display = "block";
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    });
+  </script>
+</body>
+</html>
