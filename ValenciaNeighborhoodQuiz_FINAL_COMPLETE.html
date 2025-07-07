@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Find Your Perfect Valencia Neighborhood</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; background: #f4f4f4; }
+    h2 { color: #333; }
+    .question { margin: 20px 0; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    label { display: block; margin: 8px 0; }
+    button { padding: 10px 20px; margin-top: 20px; font-size: 16px; background-color: #0077cc; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background-color: #005fa3; }
+    #results { margin-top: 40px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+    .bar { height: 18px; background: #0077cc; margin: 4px 0; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h2>Find Your Perfect Valencia Neighborhood</h2>
+  <form id="quizForm"></form>
+  <div id="results" style="display:none;">
+    <h2>🏡 Your Top 5 Neighborhood Matches</h2>
+    <div id="neighborhoodResults"></div>
+  </div>
+  <script>
+    const questions = [
+      {
+        name: "parks",
+        prompt: "How important is daily access to green space and parks for your family’s lifestyle?",
+        options: [
+          "Essential — we’d use them daily",
+          "Helpful to have nearby",
+          "Nice, but not necessary",
+          "Not a factor for us"
+        ]
+      },
+      {
+        name: "culture",
+        prompt: "What kind of cultural and community life do you imagine nearby?",
+        options: [
+          "We’d love to be near museums, libraries, or cultural centers",
+          "Occasional events would be great",
+          "We don’t really seek out those experiences"
+        ]
+      },
+      {
+        name: "trails",
+        prompt: "How important is it to be close to nature trails or outdoor areas for weekend activities?",
+        options: [
+          "We want walking distance access",
+          "We’re happy to drive to those",
+          "Not part of our lifestyle"
+        ]
+      },
+      {
+        name: "pools",
+        prompt: "How important are public pools, splash pads, or outdoor family-friendly spaces?",
+        options: [
+          "We’d use them all summer",
+          "Nice to have",
+          "We likely wouldn’t use them"
+        ]
+      },
+      {
+        name: "quiet",
+        prompt: "What kind of neighborhood energy are you hoping for?",
+        options: [
+          "We’d love a calm, family-friendly area",
+          "We’re okay with some mix — quiet with a little buzz",
+          "We want walkable streets, cafés, and a vibrant vibe"
+        ]
+      }
+    ];
+
+    const tagMapping = {
+      parks: {
+        "Essential — we’d use them daily": ["nearNature", "greenAccess", "nearLargePark"],
+        "Helpful to have nearby": ["greenAccess"],
+        "Nice, but not necessary": [],
+        "Not a factor for us": []
+      },
+      culture: {
+        "We’d love to be near museums, libraries, or cultural centers": ["culturalAccess", "urban", "goodTransit"],
+        "Occasional events would be great": ["culturalAccess"],
+        "We don’t really seek out those experiences": []
+      },
+      trails: {
+        "We want walking distance access": ["nearNature", "treeLinedStreets"],
+        "We’re happy to drive to those": ["commuterSuburb", "greenAccess"],
+        "Not part of our lifestyle": []
+      },
+      pools: {
+        "We’d use them all summer": ["publicPools", "urbanFamily"],
+        "Nice to have": ["publicPools"],
+        "We likely wouldn’t use them": []
+      },
+      quiet: {
+        "We’d love a calm, family-friendly area": ["suburbanFamily", "quietStreets", "isPueblo"],
+        "We’re okay with some mix — quiet with a little buzz": ["urbanFamily"],
+        "We want walkable streets, cafés, and a vibrant vibe": ["urbanFamily", "culturalAccess", "urban"]
+      }
+    };
+
+    const neighborhoods = JSON.parse(`__NEIGHBORHOOD_DATA__`);
+
+    const form = document.getElementById("quizForm");
+    questions.forEach((q, i) => {
+      const div = document.createElement("div");
+      div.className = "question";
+      div.innerHTML = `<strong>${i + 1}. ${q.prompt}</strong>`;
+      q.options.forEach(opt => {
+        const id = `${q.name}-${opt.replace(/\s+/g, "-")}`;
+        div.innerHTML += `<label><input type="radio" name="${q.name}" value="${opt}"> ${opt}</label>`;
+      });
+      form.appendChild(div);
+    });
+
+    form.insertAdjacentHTML("beforeend", `<button type="submit">See My Top Neighborhoods</button>`);
+
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+      let selectedTags = [];
+      questions.forEach(q => {
+        const answer = form[q.name].value;
+        if (tagMapping[q.name][answer]) {
+          selectedTags = selectedTags.concat(tagMapping[q.name][answer]);
+        }
+      });
+
+      const scores = neighborhoods.map(n => {
+        const matches = n.tags.filter(t => selectedTags.includes(t)).length;
+        return { name: n.name, score: matches };
+      }).sort((a, b) => b.score - a.score).slice(0, 5);
+
+      const resultDiv = document.getElementById("neighborhoodResults");
+      resultDiv.innerHTML = "";
+      const maxScore = scores[0]?.score || 1;
+
+      scores.forEach(n => {
+        const pct = ((n.score / maxScore) * 100).toFixed(1);
+        resultDiv.innerHTML += `<p><strong>${n.name}</strong> (${pct}%)</p><div class="bar" style="width:${pct}%"></div>`;
+      });
+
+      document.getElementById("results").style.display = "block";
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    });
+  </script>
+</body>
+</html>
