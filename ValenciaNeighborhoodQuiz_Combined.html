@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Find Your Perfect Valencia Neighborhood</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; background: #f4f4f4; }
+    h2 { color: #333; }
+    .question { margin: 20px 0; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    label { display: block; margin: 8px 0; }
+    button { padding: 10px 20px; margin-top: 20px; font-size: 16px; background-color: #0077cc; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background-color: #005fa3; }
+    #results { margin-top: 40px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+    .bar { height: 18px; background: #0077cc; margin: 4px 0; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h2>Find Your Perfect Valencia Neighborhood</h2>
+  <form id="quizForm"></form>
+  <div id="results" style="display:none;">
+    <h2>🏡 Your Top 5 Neighborhood Matches</h2>
+    <div id="neighborhoodResults"></div>
+  </div>
+
+<script>
+const questions = [
+  {
+    "name": "beach",
+    "prompt": "How close do you want to be to the beach?",
+    "options": [
+      "I\u2019d love to walk to the beach in under 10 minutes",
+      "I\u2019m happy with a 15\u201330 min metro ride",
+      "A beach visit now and then is enough for me",
+      "Not important at all"
+    ]
+  },
+  {
+    "name": "parks",
+    "prompt": "How important is daily access to green space and parks for your family\u2019s lifestyle?",
+    "options": [
+      "Essential \u2014 we\u2019d use them daily",
+      "Helpful to have nearby",
+      "Nice, but not necessary",
+      "Not a factor for us"
+    ]
+  },
+  {
+    "name": "culture",
+    "prompt": "What kind of cultural and community life do you imagine nearby?",
+    "options": [
+      "We\u2019d love to be near museums, libraries, or cultural centers",
+      "Occasional events would be great",
+      "We don\u2019t really seek out those experiences"
+    ]
+  },
+  {
+    "name": "trails",
+    "prompt": "How important is it to be close to nature trails or outdoor areas for weekend activities?",
+    "options": [
+      "We want walking distance access",
+      "We\u2019re happy to drive to those",
+      "Not part of our lifestyle"
+    ]
+  },
+  {
+    "name": "pools",
+    "prompt": "How important are public pools, splash pads, or outdoor family-friendly spaces?",
+    "options": [
+      "We\u2019d use them all summer",
+      "Nice to have",
+      "We likely wouldn\u2019t use them"
+    ]
+  },
+  {
+    "name": "quiet",
+    "prompt": "What kind of neighborhood energy are you hoping for?",
+    "options": [
+      "Tranquil and quiet with lots of space",
+      "Family-friendly with a bit of a local buzz",
+      "Lively and walkable \u2014 I love the energy of markets and plazas",
+      "Somewhere peaceful but well-connected"
+    ]
+  },
+  {
+    "name": "walkability",
+    "prompt": "How important is walkability in your daily life?",
+    "options": [
+      "I want to walk to everything \u2014 caf\u00e9s, bakeries, markets",
+      "I like walkability but don\u2019t need everything on my doorstep",
+      "I\u2019m fine with using a car or public transit for errands",
+      "Doesn\u2019t matter \u2014 I prefer to stay home"
+    ]
+  },
+  {
+    "name": "homeType",
+    "prompt": "What kind of home are you hoping to live in?",
+    "options": [
+      "A house with outdoor space (like a yard or garden)",
+      "A spacious apartment or penthouse",
+      "A compact, low-maintenance flat",
+      "Not sure yet \u2014 I\u2019m open"
+    ]
+  },
+  {
+    "name": "schooling",
+    "prompt": "Will kids be attending school in Valencia?",
+    "options": [
+      "Yes \u2014 and international or bilingual options are a priority",
+      "Yes \u2014 but local Spanish or concertado schools are fine",
+      "Not applicable \u2014 no school-aged kids"
+    ]
+  },
+  {
+    "name": "pets",
+    "prompt": "Will pets be part of your household?",
+    "options": [
+      "Yes \u2014 a dog, cat, or both",
+      "Maybe \u2014 still deciding",
+      "No \u2014 not a factor for us"
+    ]
+  },
+  {
+    "name": "driving",
+    "prompt": "What\u2019s your ideal day-to-day transportation?",
+    "options": [
+      "I want to walk or bike as much as possible",
+      "Public transport is my go-to",
+      "I\u2019ll have a car and plan to drive daily",
+      "It depends on the neighborhood"
+    ]
+  },
+  {
+    "name": "community",
+    "prompt": "What kind of expat or local community do you hope to find?",
+    "options": [
+      "I\u2019d love to connect with other international families",
+      "A good mix of locals and expats sounds ideal",
+      "I\u2019d prefer to be immersed in local Spanish life"
+    ]
+  }
+];
+</script>
+
+<script>
+const tagMapping = {
+  // example (tags updated as needed in future steps)
+  parks: {
+    "Essential — we’d use them daily": ["nearNature", "greenAccess", "nearLargePark"],
+    "Helpful to have nearby": ["greenAccess"],
+    "Nice, but not necessary": [],
+    "Not a factor for us": []
+  },
+  // Additional mappings...
+};
+
+const neighborhoods = [
+  { name: "Rocafort", tags: ["suburbanFamily", "quietStreets", "greenAccess", "isPueblo", "nearNature", "publicPools"] },
+  { name: "El Cabanyal", tags: ["urbanFamily", "nearBeach", "vibrant", "culturalAccess", "goodTransit"] },
+  { name: "Benimaclet", tags: ["urbanFamily", "vibrant", "greenAccess", "culturalAccess", "urban"] },
+  { name: "Godella", tags: ["suburbanFamily", "quietStreets", "isPueblo", "greenAccess"] },
+  { name: "Ensanche", tags: ["urbanFamily", "urban", "walkable", "culturalAccess", "goodTransit"] }
+];
+
+const form = document.getElementById("quizForm");
+questions.forEach((q, i) => {
+  const div = document.createElement("div");
+  div.className = "question";
+  div.innerHTML = `<strong>${i + 1}. ${q.prompt}</strong>`;
+  q.options.forEach(opt => {
+    div.innerHTML += `<label><input type="radio" name="${q.name}" value="${opt}"> ${opt}</label>`;
+  });
+  form.appendChild(div);
+});
+
+form.insertAdjacentHTML("beforeend", `<button type="submit">See My Top Neighborhoods</button>`);
+
+form.addEventListener("submit", function(event) {
+  event.preventDefault();
+  let selectedTags = [];
+  questions.forEach(q => {
+    const answer = form[q.name]?.value;
+    if (answer && tagMapping[q.name]?.[answer]) {
+      selectedTags = selectedTags.concat(tagMapping[q.name][answer]);
+    }
+  });
+
+  const scores = neighborhoods.map(n => {
+    const matches = n.tags.filter(t => selectedTags.includes(t)).length;
+    return { name: n.name, score: matches };
+  }).sort((a, b) => b.score - a.score).slice(0, 5);
+
+  const resultDiv = document.getElementById("neighborhoodResults");
+  resultDiv.innerHTML = "";
+  const maxScore = scores[0]?.score || 1;
+
+  scores.forEach(n => {
+    const pct = ((n.score / maxScore) * 100).toFixed(1);
+    resultDiv.innerHTML += `<p><strong>${n.name}</strong> (${pct}%)</p><div class="bar" style="width:${pct}%"></div>`;
+  });
+
+  document.getElementById("results").style.display = "block";
+  window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+});
+</script>
+
+</body>
+</html>
