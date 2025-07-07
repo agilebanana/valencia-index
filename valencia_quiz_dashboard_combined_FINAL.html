@@ -1,0 +1,403 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Valencia Lifestyle Quiz – Family Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; background: #f4f4f4; }
+    h2 { color: #333; }
+    .question { margin: 20px 0; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    label { display: block; margin: 8px 0; }
+    button { padding: 10px 20px; margin-top: 20px; font-size: 16px; background-color: #0077cc; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background-color: #005fa3; }
+    #results { margin-top: 40px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+    .bar { height: 18px; background: #0077cc; margin: 4px 0; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h2>Find Your Perfect Valencia Neighborhood</h2>
+  <form id="quizForm">
+    <div class="question">
+      <strong>1. Do you imagine living in a quiet, family-friendly suburb or a lively city neighborhood?</strong>
+      <label><input type="radio" name="family" value="suburban"> Suburban with space and quiet</label>
+      <label><input type="radio" name="family" value="urban"> City life, with walkability and culture</label>
+    </div>
+
+    <div class="question">
+      <strong>2. How important is being near green space or parks?</strong>
+      <label><input type="radio" name="parks" value="important"> Very important</label>
+      <label><input type="radio" name="parks" value="nice"> Nice to have</label>
+      <label><input type="radio" name="parks" value="not"> Not important</label>
+    </div>
+
+    <div class="question">
+      <strong>3. Would you prefer to live near cultural venues like libraries or museums?</strong>
+      <label><input type="radio" name="culture" value="yes"> Yes</label>
+      <label><input type="radio" name="culture" value="no"> Not a priority</label>
+    </div>
+
+    <div class="question">
+      <strong>4. How would you usually get around?</strong>
+      <label><input type="radio" name="transport" value="walk"> Walking or biking</label>
+      <label><input type="radio" name="transport" value="drive"> Driving</label>
+    </div>
+
+    <button type="submit">See My Top Neighborhoods</button>
+  </form>
+
+  <div id="results" style="display:none;">
+    <h2>🏡 Your Top 5 Neighborhood Matches</h2>
+    <div id="neighborhoodResults"></div>
+  </div>
+
+  <script>
+    const tagMap = {
+      family: {
+        suburban: ["suburbanFamily", "isPueblo"],
+        urban: ["urbanFamily", "urban", "culturalAccess"]
+      },
+      parks: {
+        important: ["greenAccess", "nearLargePark"],
+        nice: ["greenAccess"],
+        not: []
+      },
+      culture: {
+        yes: ["culturalAccess"],
+        no: []
+      },
+      transport: {
+        walk: ["walkable", "urban"],
+        drive: ["parkingEase", "commuterSuburb"]
+      }
+    };
+
+    let neighborhoodData = [];
+
+    fetch("valencia_neighborhoods_data.json")
+      .then(response => response.json())
+      .then(data => neighborhoodData = data);
+
+    document.getElementById("quizForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const form = event.target;
+      let selectedTags = [];
+
+      for (const [key, answers] of Object.entries(tagMap)) {
+        const val = form[key].value;
+        selectedTags = selectedTags.concat(answers[val] || []);
+      }
+
+      const scores = neighborhoodData.map(n => {
+        const matches = n.tags.filter(t => selectedTags.includes(t)).length;
+        return { name: n.name, score: matches };
+      }).sort((a, b) => b.score - a.score).slice(0, 5);
+
+      const resultDiv = document.getElementById("neighborhoodResults");
+      resultDiv.innerHTML = "";
+      const maxScore = scores[0]?.score || 1;
+
+      scores.forEach(n => {
+        const pct = ((n.score / maxScore) * 100).toFixed(1);
+        resultDiv.innerHTML += `<p><strong>${n.name}</strong> (${pct}%)</p><div class="bar" style="width:${pct}%"></div>`;
+      });
+
+      document.getElementById("results").style.display = "block";
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    });
+  </script>
+
+<script id="neighborhoodData" type="application/json">
+[
+  {
+    "name": "Ruzafa (Russafa)",
+    "tags": [
+      "artsy",
+      "expat-friendly",
+      "green",
+      "hipster",
+      "nightlife",
+      "pet-friendly",
+      "up-and-coming",
+      "urban",
+      "walkable",
+      "well-connected"
+    ]
+  },
+  {
+    "name": "El Carmen",
+    "tags": [
+      "artsy",
+      "expat-friendly",
+      "historic",
+      "nightlife",
+      "urban",
+      "walkable",
+      "well-connected"
+    ]
+  },
+  {
+    "name": "El Cabanyal",
+    "tags": [
+      "artsy",
+      "beach",
+      "expat-friendly",
+      "pet-friendly",
+      "up-and-coming",
+      "urban"
+    ]
+  },
+  {
+    "name": "Ensanche (Eixample) / Canovas",
+    "tags": [
+      "expat-friendly",
+      "family-friendly",
+      "pet-friendly",
+      "urban",
+      "very-safe",
+      "walkable",
+      "well-connected"
+    ]
+  },
+  {
+    "name": "Benimaclet",
+    "tags": [
+      "affordable",
+      "artsy",
+      "expat-friendly",
+      "hipster",
+      "pet-friendly",
+      "student",
+      "up-and-coming",
+      "urban",
+      "walkable",
+      "well-connected"
+    ]
+  },
+  {
+    "name": "El Pla del Real",
+    "tags": [
+      "expat-friendly",
+      "family-friendly",
+      "green",
+      "pet-friendly",
+      "urban",
+      "very-safe",
+      "walkable",
+      "well-connected"
+    ]
+  },
+  {
+    "name": "Campanar",
+    "tags": [
+      "pet-friendly",
+      "urban",
+      "very-safe",
+      "well-connected"
+    ]
+  },
+  {
+    "name": "Patraix",
+    "tags": [
+      "affordable",
+      "urban",
+      "very-safe"
+    ]
+  },
+  {
+    "name": "El Bot\u00e0nic",
+    "tags": [
+      "artsy",
+      "green",
+      "pet-friendly",
+      "urban",
+      "very-safe",
+      "walkable",
+      "well-connected"
+    ]
+  },
+  {
+    "name": "El Pilar (Velluters)",
+    "tags": [
+      "affordable",
+      "artsy",
+      "historic",
+      "urban",
+      "well-connected"
+    ]
+  },
+  {
+    "name": "En Corts",
+    "tags": [
+      "artsy",
+      "urban"
+    ]
+  },
+  {
+    "name": "Gran V\u00eda",
+    "tags": [
+      "artsy",
+      "expat-friendly",
+      "pet-friendly",
+      "up-and-coming",
+      "urban",
+      "very-safe",
+      "walkable",
+      "well-connected"
+    ]
+  },
+  {
+    "name": "Benicalap",
+    "tags": [
+      "affordable",
+      "green",
+      "urban"
+    ]
+  },
+  {
+    "name": "Arrancapins",
+    "tags": [
+      "pet-friendly",
+      "urban",
+      "very-safe",
+      "well-connected"
+    ]
+  },
+  {
+    "name": "Rocafort",
+    "tags": [
+      "affordable",
+      "family-friendly",
+      "green",
+      "suburban",
+      "very-safe",
+      "well-connected"
+    ]
+  },
+  {
+    "name": "Burjassot",
+    "tags": [
+      "affordable",
+      "suburban",
+      "very-safe"
+    ]
+  },
+  {
+    "name": "Patacona",
+    "tags": [
+      "affordable",
+      "beach",
+      "urban",
+      "walkable",
+      "well-connected"
+    ]
+  },
+  {
+    "name": "Mislata",
+    "tags": [
+      "affordable",
+      "urban"
+    ]
+  },
+  {
+    "name": "B\u00e9tera",
+    "tags": [
+      "affordable",
+      "green",
+      "suburban",
+      "well-connected"
+    ]
+  },
+  {
+    "name": "Ll\u00edria",
+    "tags": [
+      "affordable",
+      "green",
+      "historic",
+      "nightlife",
+      "urban"
+    ]
+  },
+  {
+    "name": "La Canyada",
+    "tags": [
+      "affordable",
+      "green",
+      "urban",
+      "very-safe"
+    ]
+  },
+  {
+    "name": "Godella",
+    "tags": [
+      "affordable",
+      "family-friendly",
+      "suburban",
+      "very-safe"
+    ]
+  },
+  {
+    "name": "Paiporta",
+    "tags": [
+      "affordable",
+      "suburban"
+    ]
+  },
+  {
+    "name": "Torrent",
+    "tags": [
+      "affordable",
+      "family-friendly",
+      "suburban"
+    ]
+  },
+  {
+    "name": "Natzaret",
+    "tags": [
+      "affordable",
+      "artsy",
+      "beach",
+      "urban"
+    ]
+  },
+  {
+    "name": "Alboraya",
+    "tags": [
+      "affordable",
+      "beach",
+      "historic",
+      "suburban",
+      "very-safe",
+      "walkable",
+      "well-connected"
+    ]
+  },
+  {
+    "name": "Manises",
+    "tags": [
+      "affordable",
+      "artsy",
+      "family-friendly",
+      "urban"
+    ]
+  },
+  {
+    "name": "Aldaia",
+    "tags": [
+      "affordable",
+      "urban"
+    ]
+  },
+  {
+    "name": "Catarroja",
+    "tags": [
+      "affordable",
+      "family-friendly",
+      "urban"
+    ]
+  }
+]
+</script>
+
+</body>
+</html>
