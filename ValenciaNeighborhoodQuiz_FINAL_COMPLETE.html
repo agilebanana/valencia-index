@@ -613,6 +613,45 @@ const neighborhoods = [
     ]
   }
 ];
+const form = document.getElementById("quizForm");
+questions.forEach((q, i) => {
+  const div = document.createElement("div");
+  div.className = "question";
+  div.innerHTML = `<strong>${i + 1}. ${q.prompt}</strong>`;
+  q.options.forEach(opt => {
+    div.innerHTML += `<label><input type="radio" name="${q.name}" value="${opt}"> ${opt}</label>`;
+  });
+  form.appendChild(div);
+});
+form.insertAdjacentHTML("beforeend", `<button type="submit">See My Top Neighborhoods</button>`);
+
+form.addEventListener("submit", function(event) {
+  event.preventDefault();
+  let selectedTags = [];
+  questions.forEach(q => {
+    const answer = form[q.name].value;
+    if (tagMapping[q.name][answer]) {
+      selectedTags = selectedTags.concat(tagMapping[q.name][answer]);
+    }
+  });
+
+  const scores = neighborhoods.map(n => {
+    const matches = n.tags.filter(t => selectedTags.includes(t)).length;
+    return { name: n.name, score: matches };
+  }).sort((a, b) => b.score - a.score).slice(0, 5);
+
+  const resultDiv = document.getElementById("neighborhoodResults");
+  resultDiv.innerHTML = "";
+  const maxScore = scores[0]?.score || 1;
+
+  scores.forEach(n => {
+    const pct = ((n.score / maxScore) * 100).toFixed(1);
+    resultDiv.innerHTML += `<p><strong>${n.name}</strong> (${pct}%)</p><div class="bar" style="width:${pct}%"></div>`;
+  });
+
+  document.getElementById("results").style.display = "block";
+  window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+});  
 </script>
 </body>
 </html>
